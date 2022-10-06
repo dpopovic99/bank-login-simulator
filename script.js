@@ -7,6 +7,18 @@ const account1 = {
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
   interestRate: 1.2, // %
   pin: 1111,
+  movementsDates: [
+    '2019-11-18T21:31:17.178Z',
+    '2017-12-23T07:42:02.383Z',
+    '2020-01-28T09:15:04.904Z',
+    '2020-04-01T10:17:24.185Z',
+    '2020-05-08T14:11:59.604Z',
+    '2021-05-27T17:01:17.194Z',
+    '2020-07-11T23:36:17.929Z',
+    '2020-07-12T10:51:36.790Z',
+  ],
+  currency: 'EUR',
+  locale: 'pt-PT',
 };
 
 const account2 = {
@@ -14,6 +26,18 @@ const account2 = {
   movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
   interestRate: 1.5,
   pin: 2222,
+  movementsDates: [
+    '2019-11-18T21:31:17.178Z',
+    '2019-12-23T07:42:02.383Z',
+    '2016-01-28T09:15:04.904Z',
+    '2020-04-01T10:17:24.185Z',
+    '2020-05-08T14:11:59.604Z',
+    '2020-05-27T17:01:17.194Z',
+    '2020-07-11T23:36:17.929Z',
+    '2020-07-12T10:51:36.790Z',
+  ],
+  currency: 'USD',
+  locale: 'en-US',
 };
 
 const account3 = {
@@ -21,6 +45,18 @@ const account3 = {
   movements: [200, -200, 340, -300, -20, 50, 400, -460],
   interestRate: 0.7,
   pin: 3333,
+  movementsDates: [
+    '2019-11-18T21:31:17.178Z',
+    '2019-12-23T07:42:02.383Z',
+    '2020-01-28T09:15:04.904Z',
+    '2020-04-01T10:17:24.185Z',
+    '2020-05-08T14:11:59.604Z',
+    '2023-05-27T17:01:17.194Z',
+    '2020-07-11T23:36:17.929Z',
+    '2020-07-12T10:51:36.790Z',
+  ],
+  currency: 'EUR',
+  locale: 'pt-PT',
 };
 
 const account4 = {
@@ -28,6 +64,15 @@ const account4 = {
   movements: [430, 1000, 700, 50, 90],
   interestRate: 1,
   pin: 4444,
+  movementsDates: [
+    '2019-11-18T21:31:17.178Z',
+    '2019-12-23T07:42:02.383Z',
+    '2021-01-28T09:15:04.904Z',
+    '2022-04-01T10:17:24.185Z',
+    '2020-05-08T14:11:59.604Z',    
+  ],
+  currency: 'EUR',
+  locale: 'pt-PT',
 };
 
 const accounts = [account1, account2, account3, account4];
@@ -64,11 +109,11 @@ const currencies = new Map([
   ['GBP', 'Pound sterling'],
 ]);
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
-createUserNames(accounts)
+
 const eurToUSD = 1.1
 
 
-
+let now
 
 const movementsDescriptions = movements.map( (mov, i) =>
    `Movemment ${i+1}: You ${mov > 0? 'deposited': 'withdrew'} ${Math.abs(mov)}`
@@ -110,6 +155,7 @@ const displayMovements = function(acc, sort = false){
     `
         <div class="movements__row">
           <div class="movements__type movements__type--${type}">${i+1} ${type}</div>
+          <div class="movements__date">${new Date(acc.movementsDates[i]).toLocaleDateString(acc.locale)}</div>
           <div class="movements__value">${mov}€</div>
         </div>
     `
@@ -123,6 +169,8 @@ const updateUI = (acc) => {
   displayMovements(acc)
   calcDisplaySummary(acc)
   displayBalance(acc)
+  now = new Date()
+  labelDate.textContent = now.toLocaleDateString(acc.locale)
 }
 
 const hideUI = () => {
@@ -157,7 +205,10 @@ btnTransfer.addEventListener('click', (e) => {
   const receiverAcc = accounts.find(acc => acc.username ===inputTransferTo.value)
   if(amount > 0 && receiverAcc && currentAccount.balance >= amount && receiverAcc.username !== currentAccount.username){
     currentAccount.movements.push(-amount)
+    currentAccount.movementsDates.push(now.toISOString())
+    
     receiverAcc.movements.push(amount)
+    receiverAcc.movementsDates.push(now.toISOString())
   }
   inputTransferTo.value = ''
   inputTransferAmount.value = ''
@@ -168,7 +219,8 @@ btnLoan.addEventListener('click', (e) =>{
   e.preventDefault()
   const loanAmount = Number(inputLoanAmount.value)
   if(loanAmount > 0 && currentAccount.movements.some(deposit => deposit >= loanAmount * 0.1 )){
-    currentAccount.movements.push(amount)
+    currentAccount.movements.push(loanAmount)
+    currentAccount.movementsDates.push(now.toISOString())
     inputLoanAmount.value = 0
     updateUI(currentAccount)
   }else{
@@ -197,4 +249,4 @@ btnSort.addEventListener('click', (e) => {
   sortState = !sortState
 })
 
-
+createUserNames(accounts)
