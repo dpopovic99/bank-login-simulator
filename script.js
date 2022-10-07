@@ -115,6 +115,31 @@ const eurToUSD = 1.1
 
 let now
 
+const startLogoutTimer = (acc) => {
+  
+  let time = 300
+  const tick = setInterval(() => {
+    if(currentAccount !== acc){
+      clearInterval(tick)
+    }
+    const min  = Math.floor(time / 60)
+    const seconds = time % 60
+    if(seconds < 10){
+      labelTimer.textContent = `${min}:0${seconds}`
+    }else{
+      labelTimer.textContent = `${min}:${seconds}`
+    }
+    // time--
+    
+    if( time === 0){
+      clearInterval(tick)
+      labelWelcome.textContent = "Log in to get started"
+      containerApp.style.opacity = 0
+    }
+    time--
+  },1000)
+}
+
 const movementsDescriptions = movements.map( (mov, i) =>
    `Movemment ${i+1}: You ${mov > 0? 'deposited': 'withdrew'} ${Math.abs(mov)}`
 )
@@ -193,9 +218,8 @@ btnLogin.addEventListener('click', function (e) {
     //display UI and message
     labelWelcome.textContent = ` Welcome ${currentAccount.owner.split(' ')[0]}`
     containerApp.style.opacity = 100
-    
+    startLogoutTimer(currentAccount)
     updateUI(currentAccount)
-
   }
 })
 
